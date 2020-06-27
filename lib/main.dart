@@ -1,117 +1,324 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'models/item.dart';
 
 void main() {
-  runApp(MyApp());
+    runApp(App());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
+class App extends StatelessWidget {
+    @override
+    Widget build(BuildContext context) {
+        return MaterialApp(
+            title: 'Simple List',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+                primarySwatch: Colors.blue,
+            ), // ThemeData
+            home: FirstRoute(),
+        ); // MaterialApp
+    }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+/*
+    Rota principal do aplicativo.
+*/
+class FirstRoute extends StatefulWidget {
+    List<Item> items = new List<Item>();
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+    FirstRoute() {
+        items = [];
+    }
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
+    @override
+    _FirstRouteState createState() => _FirstRouteState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _FirstRouteState extends State<FirstRoute> {
+    void add(String itemTitle) {
+        if (itemTitle.isEmpty)
+            return;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+        setState(() {
+            widget.items.add(
+                Item(title: itemTitle,),
+            );
+            save();
+        });
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
+    void remove(int index) {
+        setState(() {
+            widget.items.removeAt(index);
+            save();
+        });
+    }
+
+    void unchecked() {
+        setState(() {
+            for (Item item in widget.items) {
+                item.isCompleted = false;
+            }
+            save();
+        });
+    }
+
+    void clear() {
+        setState(() {
+            widget.items.clear();
+            save();
+        });
+    }
+
+    Future load() async {
+        var prefs = await SharedPreferences.getInstance();
+        var data = prefs.getString('datalist#001');
+
+        if (data != null) {
+            Iterable decoded = jsonDecode(data);
+            List<Item> result = decoded.map((x) => Item.fromJson(x)).toList();
+            setState(() {
+                widget.items = result;
+            });
+        }
+    }
+
+    void save() async {
+        var prefs = await SharedPreferences.getInstance();
+        await prefs.setString('datalist#001', jsonEncode(widget.items));
+    }
+
+    _FirstRouteState() {
+        load();
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                title: Text('Simple List'),
+                backgroundColor: Colors.green[800],
+                actions: <Widget> [
+                    IconButton(
+                        icon: Icon(Icons.check_box_outline_blank),
+                        onPressed: () {
+                            unchecked();
+                        },
+                    ), // IconButton
+                    IconButton(
+                        icon: Icon(Icons.delete_outline),
+                        onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => DeleteRoute(this)),
+                            ); // Navigator.push
+                        },
+                    ), // IconButton
+                    IconButton(
+                        icon: Icon(Icons.bookmark_border),
+                        onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => InfoRoute()),
+                            ); // Navigator.push
+                        },
+                    ), // IconButton
+                ],
+            ), // AppBar
+            body: ListView.builder(
+                itemCount: widget.items.length,
+                itemBuilder: (BuildContext ctx, int index) {
+                    final item = widget.items[index];
+                    return Dismissible(
+                        child: CheckboxListTile(
+                            title: Text(item.title),
+                            value: item.isCompleted,
+                            onChanged: (value) {
+                                setState(() {
+                                    item.isCompleted = value;
+                                    save();
+                                });
+                            },
+                        ), // CheckboxListTile
+                        key: Key(item.title),
+                        background: Container(
+                            color: Colors.grey.withOpacity(0.2),
+                        ), // Container
+                        onDismissed: (direction) {
+                            remove(index);
+                        },
+                    ); // Dismissible
+                }
+            ), // ListView.builder
+            floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AdditionRoute(this)),
+                    ); // Navigator.push
+                },
+                child: Icon(Icons.add),
+                backgroundColor: Colors.green,
+            ), // FloatingActionButton
+        ); // Scaffold
+    }
+}
+
+/*
+    Rota de adição de itens do aplicativo.
+*/
+class AdditionRoute extends StatefulWidget {
+    _FirstRouteState firstRoute = null;
+
+    AdditionRoute(_FirstRouteState firstRoute) {
+        this.firstRoute = firstRoute;
+    }
+
+    @override
+    _AdditionRouteState createState() => _AdditionRouteState();
+}
+
+class _AdditionRouteState extends State<AdditionRoute> {
+    TextEditingController textController = TextEditingController();
+
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                title: Text('Adiconar Itens'),
+                backgroundColor: Colors.green[800],
+            ), // AppBar
+            body: Container(
+                child: Center(
+                    child: Column(
+                        children: <Widget> [
+                            Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: TextFormField(
+                                    keyboardType: TextInputType.text,
+                                    style: TextStyle(
+                                        color: Colors.grey[800],
+                                        fontSize: 18,
+                                    ), // TextStyle
+                                    decoration: InputDecoration(
+                                        icon: Icon(Icons.create),
+                                        hintText: 'Escreva o nome do item',
+                                        labelText: 'Novo Item',
+                                        border: InputBorder.none,
+                                    ), // InputDecoration
+                                    controller: textController,
+                                ), // TextFormField
+                            ), // Padding
+                            Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: SizedBox(
+                                    width: double.infinity,
+                                    child: FlatButton(
+                                        color: Colors.grey[200],
+                                        textColor: Colors.grey[800],
+                                        disabledColor: Colors.grey,
+                                        disabledTextColor: Colors.black,
+                                        splashColor: Colors.grey,
+                                        padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                                        onPressed: () {
+                                            widget.firstRoute.add(textController.text);
+                                            textController.text = '';
+                                        },
+                                        child: Text('Adicionar', style: TextStyle(fontSize: 18),),
+                                    ), // FlatButton
+                                ), // SizedBox
+                            ), // Padding
+                        ],
+                    ), // Column
+                ), // Center
+            ), // Container
+        ); // Scaffold
+    }
+}
+
+/*
+    Rota de excluir todos os itens da lista do aplicativo.
+*/
+class DeleteRoute extends StatelessWidget {
+    _FirstRouteState firstRoute = null;
+
+    DeleteRoute(_FirstRouteState firstRoute) {
+        this.firstRoute = firstRoute;
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                title: Text('Excluir Lista'),
+                backgroundColor: Colors.green[800],
+            ), // AppBar
+            body: Container(
+                child: Center(
+                    child: Column(
+                        children: <Widget> [
+                            Padding(
+                                padding: EdgeInsets.only(top: 60.0, bottom: 30.0),
+                                child: Text('Deseja excluir toda a lista?', style: TextStyle(fontSize: 18),), // Text
+                            ), // Padding
+                            Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: SizedBox(
+                                    width: double.infinity,
+                                    child: FlatButton(
+                                        color: Colors.red,
+                                        textColor: Colors.white,
+                                        disabledColor: Colors.grey,
+                                        disabledTextColor: Colors.black,
+                                        splashColor: Colors.red[800],
+                                        padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                                        onPressed: () {
+                                            firstRoute.clear();
+                                            Navigator.pop(context);
+                                        },
+                                        child: Text('Sim', style: TextStyle(fontSize: 18),),
+                                    ), // FlatButton
+                                ), // SizedBox
+                            ), // Padding
+                            Padding(
+                                padding: EdgeInsets.only(left: 20.0, top: 0.0, right: 20.0, bottom: 0.0),
+                                child: SizedBox(
+                                    width: double.infinity,
+                                    child: FlatButton(
+                                        color: Colors.grey[200],
+                                        textColor: Colors.grey[800],
+                                        disabledColor: Colors.grey,
+                                        disabledTextColor: Colors.black,
+                                        splashColor: Colors.grey,
+                                        padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                                        onPressed: () {
+                                            Navigator.pop(context);
+                                        },
+                                        child: Text('Não', style: TextStyle(fontSize: 18),), // Text
+                                    ), // FlatButton
+                                ), // SizedBox
+                            ), // Padding
+                        ],
+                    ), // Column
+                ), // Center
+            ), // Container
+        ); // Scaffold
+    }
+}
+
+/*
+    Rota de informações sobre o aplicativo.
+*/
+class InfoRoute extends StatelessWidget {
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                title: Text('Informações'),
+                backgroundColor: Colors.green[800],
+            ), // AppBar
+        ); // Scaffold
+    }
 }
