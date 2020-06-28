@@ -37,6 +37,7 @@ class FirstRoute extends StatefulWidget {
 }
 
 class _FirstRouteState extends State<FirstRoute> {
+    // Adicionar um item
     void add(String itemTitle) {
         if (itemTitle.isEmpty)
             return;
@@ -49,6 +50,7 @@ class _FirstRouteState extends State<FirstRoute> {
         });
     }
 
+    // Remover um item
     void remove(int index) {
         setState(() {
             widget.items.removeAt(index);
@@ -56,6 +58,7 @@ class _FirstRouteState extends State<FirstRoute> {
         });
     }
 
+    // Desmarcar toda a lista
     void unchecked() {
         setState(() {
             for (Item item in widget.items) {
@@ -65,6 +68,7 @@ class _FirstRouteState extends State<FirstRoute> {
         });
     }
 
+    // Excluir toda a lista
     void clear() {
         setState(() {
             widget.items.clear();
@@ -72,6 +76,7 @@ class _FirstRouteState extends State<FirstRoute> {
         });
     }
 
+    // Carregar a lista
     Future load() async {
         var prefs = await SharedPreferences.getInstance();
         var data = prefs.getString('datalist#001');
@@ -85,6 +90,7 @@ class _FirstRouteState extends State<FirstRoute> {
         }
     }
 
+    // Salvar a lista
     void save() async {
         var prefs = await SharedPreferences.getInstance();
         await prefs.setString('datalist#001', jsonEncode(widget.items));
@@ -132,16 +138,17 @@ class _FirstRouteState extends State<FirstRoute> {
                 itemBuilder: (BuildContext ctx, int index) {
                     final item = widget.items[index];
                     return Dismissible(
-                        child: CheckboxListTile(
-                            title: Text(item.title),
-                            value: item.isCompleted,
-                            onChanged: (value) {
+                        child: ListTile(
+                            title: item.isCompleted ? Text(item.title, style: TextStyle(color: Colors.grey[500]),) : Text(item.title),
+                            leading: item.isCompleted ? Icon(Icons.check_box, color: Colors.blue) : Icon(Icons.check_box_outline_blank),
+                            selected: item.isCompleted,
+                            onTap: () {
                                 setState(() {
-                                    item.isCompleted = value;
+                                    item.isCompleted = !item.isCompleted;
                                     save();
                                 });
-                            },
-                        ), // CheckboxListTile
+                            }
+                        ), // ListTile
                         key: Key(item.title),
                         background: Container(
                             color: Colors.grey.withOpacity(0.2),
@@ -319,6 +326,57 @@ class InfoRoute extends StatelessWidget {
                 title: Text('Informações'),
                 backgroundColor: Colors.green[800],
             ), // AppBar
+            body: Container(
+                child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: ListView(
+                        children: <Widget> [
+                            ListTile(
+                                title: Text('Versão do Aplicativo'),
+                                subtitle: Text('1.0.0'),
+                                leading: Icon(Icons.code),
+                            ), // ListTile
+                            ListTile(
+                                title: Text('Tipo'),
+                                subtitle: Text('To-do list'),
+                                leading: Icon(Icons.info_outline),
+                            ), // ListTile
+                            ListTile(
+                                title: Text('Adicionar Item'),
+                                subtitle: Text('Clique no botão verde flutuante na tela principal'),
+                                leading: Icon(Icons.add),
+                                isThreeLine: true,
+                            ), // ListTile
+                            ListTile(
+                                title: Text('Remover Item'),
+                                subtitle: Text('Arraste o item para a esquerda ou para a direita'),
+                                leading: Icon(Icons.delete_outline),
+                                isThreeLine: true,
+                            ), // ListTile
+                        ],
+                    ), // ListView
+                ), // Padding
+            ), // Container
+            bottomSheet: Container(
+                color: Colors.grey[100],
+                width: double.infinity,
+                height: 80,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget> [
+                        Row(
+                            children: <Widget> [
+                                Padding(
+                                    padding: EdgeInsets.only(right: 10.0, bottom: 2.0),
+                                    child: Icon(Icons.lightbulb_outline),
+                                ), // Padding
+                                Text('Desenvolvido por ', style: TextStyle(fontSize: 16, color: Colors.grey,),),
+                                Text('Jailson Lima', style: TextStyle(fontSize: 16, color: Colors.blue,),),
+                            ],
+                        ), // Row
+                    ],
+                ), // Row
+            ), // Container
         ); // Scaffold
     }
 }

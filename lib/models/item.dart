@@ -1,3 +1,6 @@
+/*
+    Modelo dos itens da aplicação.
+*/
 class Item {
     String title;
     bool isCompleted;
