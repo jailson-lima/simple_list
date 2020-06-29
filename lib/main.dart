@@ -23,7 +23,7 @@ class App extends StatelessWidget {
 }
 
 /*
-    Rota principal do aplicativo.
+    Rota principal da aplicação.
 */
 class FirstRoute extends StatefulWidget {
     List<Item> items = new List<Item>();
@@ -195,7 +195,7 @@ class _FirstRouteState extends State<FirstRoute> {
 }
 
 /*
-    Rota de adição de itens do aplicativo.
+    Rota de adição de itens a lista da aplicação.
 */
 class AdditionRoute extends StatefulWidget {
     _FirstRouteState firstRoute = null;
@@ -215,7 +215,7 @@ class _AdditionRouteState extends State<AdditionRoute> {
     Widget build(BuildContext context) {
         return Scaffold(
             appBar: AppBar(
-                title: Text('Adiconar Itens'),
+                title: Text('Adicionar Itens'),
                 backgroundColor: Colors.green[800],
             ), // AppBar
             body: Container(
@@ -267,7 +267,7 @@ class _AdditionRouteState extends State<AdditionRoute> {
 }
 
 /*
-    Rota de excluir todos os itens da lista do aplicativo.
+    Rota de excluir todos os itens da lista da aplicação.
 */
 class DeleteRoute extends StatelessWidget {
     _FirstRouteState firstRoute = null;
@@ -337,7 +337,7 @@ class DeleteRoute extends StatelessWidget {
 }
 
 /*
-    Rota de informações sobre o aplicativo.
+    Rota de informações sobre a aplicação.
 */
 class InfoRoute extends StatelessWidget {
     @override
