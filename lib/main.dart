@@ -133,32 +133,53 @@ class _FirstRouteState extends State<FirstRoute> {
                     ), // IconButton
                 ],
             ), // AppBar
-            body: ListView.builder(
-                itemCount: widget.items.length,
-                itemBuilder: (BuildContext ctx, int index) {
-                    final item = widget.items[index];
-                    return Dismissible(
-                        child: ListTile(
-                            title: item.isCompleted ? Text(item.title, style: TextStyle(color: Colors.grey[500]),) : Text(item.title),
-                            leading: item.isCompleted ? Icon(Icons.check_box, color: Colors.blue) : Icon(Icons.check_box_outline_blank),
-                            selected: item.isCompleted,
-                            onTap: () {
-                                setState(() {
-                                    item.isCompleted = !item.isCompleted;
-                                    save();
-                                });
-                            }
-                        ), // ListTile
-                        key: Key(item.title),
-                        background: Container(
-                            color: Colors.grey.withOpacity(0.2),
-                        ), // Container
-                        onDismissed: (direction) {
-                            remove(index);
-                        },
-                    ); // Dismissible
-                }
-            ), // ListView.builder
+            body: (widget.items.length != 0) ?
+                ListView.builder(
+                    itemCount: widget.items.length,
+                    itemBuilder: (BuildContext ctx, int index) {
+                        final item = widget.items[index];
+                        return Dismissible(
+                            child: ListTile(
+                                title: item.isCompleted ?
+                                    Text(item.title, style: TextStyle(color: Colors.grey[500]),) :
+                                    Text(item.title),
+                                leading: item.isCompleted ?
+                                    Icon(Icons.check_box, color: Colors.blue) :
+                                    Icon(Icons.check_box_outline_blank),
+                                selected: item.isCompleted,
+                                onTap: () {
+                                    setState(() {
+                                        item.isCompleted = !item.isCompleted;
+                                        save();
+                                    });
+                                }
+                            ), // ListTile
+                            key: Key(item.title),
+                            background: Container(
+                                color: Colors.grey.withOpacity(0.2),
+                            ), // Container
+                            onDismissed: (direction) {
+                                remove(index);
+                            },
+                        ); // Dismissible
+                    },
+                ) : // ListView.builder
+                Center(
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget> [
+                            Row(
+                                children: <Widget> [
+                                    Padding(
+                                        padding: EdgeInsets.only(right: 10.0, bottom: 2.0),
+                                        child: Icon(Icons.content_paste, color: Colors.grey),
+                                    ), // Padding
+                                    Text('Lista Vazia', style: TextStyle(fontSize: 16, color: Colors.grey,),),
+                                ],
+                            ), // Row
+                        ],
+                    ), // Row
+                ), // Center
             floatingActionButton: FloatingActionButton(
                 onPressed: () {
                     Navigator.push(
@@ -338,7 +359,7 @@ class InfoRoute extends StatelessWidget {
                             ), // ListTile
                             ListTile(
                                 title: Text('Tipo'),
-                                subtitle: Text('To-do list'),
+                                subtitle: Text('To do list & shopping list'),
                                 leading: Icon(Icons.info_outline),
                             ), // ListTile
                             ListTile(
