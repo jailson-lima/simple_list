@@ -39,12 +39,12 @@ class FirstRoute extends StatefulWidget {
 class _FirstRouteState extends State<FirstRoute> {
     // Adicionar um item
     void add(String itemTitle) {
-        if (itemTitle.isEmpty)
+        if (itemTitle.trim().isEmpty)
             return;
 
         setState(() {
             widget.items.add(
-                Item(title: itemTitle,),
+                Item(title: itemTitle.trim(),),
             );
             save();
         });
