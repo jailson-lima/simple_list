@@ -1,0 +1,7 @@
+flutter create simple_list
+
+flutter run
+
+flutter clean
+
+flutter build apk

@@ -359,7 +359,7 @@ class InfoRoute extends StatelessWidget {
                             ), // ListTile
                             ListTile(
                                 title: Text('Tipo'),
-                                subtitle: Text('To do list & shopping list'),
+                                subtitle: Text('To-do list & shopping list'),
                                 leading: Icon(Icons.info_outline),
                             ), // ListTile
                             ListTile(
